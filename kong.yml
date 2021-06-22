@@ -1,0 +1,9 @@
+_format_version: "2.1"
+_transform: true
+
+services:
+- name: weather-service
+  url: http://localhost:10000/temperatures.json
+  routes:
+  - name: raw
+    paths: ["/"]
