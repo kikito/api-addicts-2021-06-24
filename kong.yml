@@ -5,6 +5,15 @@ services:
 - name: weather-service
   url: http://localhost:10000/temperatures.json
   routes:
-  - name: v0
+  - name: v0.0.0
     headers:
       "Accept-Version": ["0.0.0"]
+  - name: v0.1.0
+    headers:
+      "Accept-Version": ["0.1.0"]
+    plugins:
+    - name: response-transformer
+      config:
+        remove:
+          json:
+            - London
