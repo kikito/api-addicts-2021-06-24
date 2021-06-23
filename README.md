@@ -130,4 +130,36 @@ http :8000 Accept-Version:0.1.0
 
 Version 0.1.0 should not have London
 
+## Step 5 - Authentication
+
+kong.yml (only showing new route and Consumer with credentials)
+```
+_format_version: "2.1"
+_transform: true
+
+services:
+  ...
+  - name: v0.2.0
+    headers:
+      "Accept-Version": ["0.2.0"]
+    plugins:
+    - name: key-auth
+
+consumers:
+  - username: pepe
+    keyauth_credentials:
+    - key: secret
+```
+
+This new api will require authentication
+
+```
+http :8000 Accept-Version:0.2.0 # fail with 401
+```
+
+But will accept a request with the secret key:
+
+```
+http :8000 Accept-Version:0.2.0 apikey:secret
+```
 

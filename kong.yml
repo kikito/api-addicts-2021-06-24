@@ -17,3 +17,13 @@ services:
         remove:
           json:
             - London
+  - name: v0.2.0
+    headers:
+      "Accept-Version": ["0.2.0"]
+    plugins:
+    - name: key-auth
+
+consumers:
+  - username: pepe
+    keyauth_credentials:
+    - key: secret
