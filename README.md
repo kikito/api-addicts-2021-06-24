@@ -151,6 +151,10 @@ consumers:
     - key: secret
 ```
 
+```
+KONG_DATABASE=off KONG_DECLARATIVE_CONFIG=kong.yml KONG_LOG_LEVEL=debug kong restart
+```
+
 This new api will require authentication
 
 ```
@@ -161,5 +165,53 @@ But will accept a request with the secret key:
 
 ```
 http :8000 Accept-Version:0.2.0 apikey:secret
+```
+
+## Step 6 - Ratelimiting
+
+kong.yml (modify v0.2.0)
+```
+_format_version: "2.1"
+_transform: true
+
+services:
+  ...
+  - name: v0.2.0
+    headers:
+      "Accept-Version": ["0.2.0"]
+    plugins:
+    - name: key-auth
+    - name: rate-limiting
+      config:
+        minute: 5
+        limit_by: consumer
+
+consumers:
+- username: pepe
+  keyauth_credentials:
+  - key: secret
+- username: maria
+  keyauth_credentials:
+  - key: secret2
+```
+
+```
+KONG_DATABASE=off KONG_DECLARATIVE_CONFIG=kong.yml KONG_LOG_LEVEL=debug kong restart
+```
+
+The 6th request in 1 minute will get ratelimited for the first consumer:
+
+```
+http :8000 Accept-Version:0.2.0 apikey:secret
+http :8000 Accept-Version:0.2.0 apikey:secret
+http :8000 Accept-Version:0.2.0 apikey:secret
+http :8000 Accept-Version:0.2.0 apikey:secret
+http :8000 Accept-Version:0.2.0 apikey:secret
+http :8000 Accept-Version:0.2.0 apikey:secret # ratelimited
+```
+
+Other consumers can still use the ratelimited API:
+```
+http :8000 Accept-Version:0.2.0 apikey:secret2 # works
 ```
 

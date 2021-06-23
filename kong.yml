@@ -22,8 +22,15 @@ services:
       "Accept-Version": ["0.2.0"]
     plugins:
     - name: key-auth
+    - name: rate-limiting
+      config:
+        minute: 5
+        limit_by: consumer
 
 consumers:
   - username: pepe
     keyauth_credentials:
     - key: secret
+- username: pepe
+  keyauth_credentials:
+  - key: secret
