@@ -215,3 +215,47 @@ Other consumers can still use the ratelimited API:
 http :8000 Accept-Version:0.2.0 apikey:secret2 # works
 ```
 
+## Step 7 - Caching
+
+kong.yml (keep modifying v0.2.0)
+```
+_format_version: "2.1"
+_transform: true
+
+services:
+  ...
+  - name: v0.2.0
+    ...
+    plugins:
+    ...
+    - name: proxy-cache
+      config:
+        strategy: memory
+        cache_ttl: 3600
+```
+
+```
+KONG_DATABASE=off KONG_DECLARATIVE_CONFIG=kong.yml KONG_LOG_LEVEL=debug kong restart
+```
+
+Test that the response still arrives:
+
+```
+http :8000 Accept-Version:0.2.0 apikey:secret
+```
+
+Kill the upstream server:
+```
+killall python
+```
+
+Check that v0.0.0 and v0.1.0 don't work any more:
+```
+http :8000 Accept-Version:0.0.0 apikey:secret
+http :8000 Accept-Version:0.1.0 apikey:secret
+```
+
+But v2.0.0 still works (and can be rate-limited by consumer):
+```
+http :8000 Accept-Version:0.2.0 apikey:secret
+```

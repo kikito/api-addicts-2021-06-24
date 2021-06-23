@@ -26,11 +26,16 @@ services:
       config:
         minute: 5
         limit_by: consumer
+    - name: proxy-cache
+      config:
+        strategy: memory
+        cache_ttl: 3600
 
 consumers:
-  - username: pepe
-    keyauth_credentials:
-    - key: secret
 - username: pepe
   keyauth_credentials:
   - key: secret
+- username: maria
+  keyauth_credentials:
+  - key: secret2
+
