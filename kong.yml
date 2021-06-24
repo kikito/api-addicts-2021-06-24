@@ -31,6 +31,21 @@ services:
         strategy: memory
         cache_ttl: 3600
 
+routes:
+- name: mock-server
+  headers:
+    "Mock": ["true"]
+  plugins:
+  - name: post-function
+    config:
+      access:
+      - |
+          local req_path = kong.request.get_path()
+          if req_path == "/foo" then
+            kong.response.exit(200, { message = "Bar" })
+          end
+          kong.response.exit(200, { message = "Baz" })
+
 consumers:
 - username: pepe
   keyauth_credentials:

@@ -259,3 +259,41 @@ But v2.0.0 still works (and can be rate-limited by consumer):
 ```
 http :8000 Accept-Version:0.2.0 apikey:secret
 ```
+
+## Step 8 - Mock Servers
+
+Add service-less route:
+
+kong.yml
+```
+routes:
+- name: mock-server
+  headers:
+    "Mock": ["true"]
+  plugins:
+  - name: post-function
+    config:
+      access:
+      - |
+          local req_path = kong.request.get_path()
+          if req_path == "/foo" then
+            kong.response.exit(200, { message = "Bar" })
+          end
+          kong.response.exit(200, { message = "Baz" })
+```
+
+
+```
+KONG_DATABASE=off KONG_DECLARATIVE_CONFIG=kong.yml KONG_LOG_LEVEL=debug kong restart
+```
+
+Test that the new mockserver responds with "Baz" by default
+
+```
+http :8000 Mock:true
+```
+
+Test that the new mockserver responds with "Bar" with the correct path
+```
+http :8000/foo Mock:true
+```
